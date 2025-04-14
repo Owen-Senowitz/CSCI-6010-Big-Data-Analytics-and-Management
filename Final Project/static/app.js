@@ -35,6 +35,27 @@ function initMap() {
 }
 
 initMap();
+async function loadHeatmap() {
+	try {
+		const response = await fetch("/heatmap-data");
+		const data = await response.json();
+
+		if (Array.isArray(data)) {
+			const heat = L.heatLayer(data, {
+				radius: 8,
+				blur: 15,
+				maxZoom: 17
+			}).addTo(map);
+		} else {
+			console.error("Invalid heatmap data format:", data);
+		}
+	} catch (err) {
+		console.error("Error loading heatmap:", err);
+	}
+}
+
+loadHeatmap();
+
 
 document
 	.getElementById("predict-button")

@@ -77,6 +77,36 @@ def results():
         return jsonify(results)
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/heatmap-data")
+def heatmap_data():
+    import psycopg2
+
+    try:
+        conn = psycopg2.connect(
+            dbname="taxi_data",
+            user="owen",
+            password="password123",
+            host="localhost",
+            port="5432"
+        )
+        query = """
+            SELECT pickup_latitude, pickup_longitude
+            FROM raw_trips
+            WHERE pickup_latitude IS NOT NULL AND pickup_longitude IS NOT NULL
+              AND pickup_latitude BETWEEN 40.5 AND 41
+              AND pickup_longitude BETWEEN -74.3 AND -73.5
+            ORDER BY pickup_datetime DESC
+            LIMIT 100000;
+        """
+        df = pd.read_sql(query, conn)
+        conn.close()
+
+        heatmap_points = df[['pickup_latitude', 'pickup_longitude']].values.tolist()
+        return jsonify(heatmap_points)
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == "__main__":
     app.run(debug=True)

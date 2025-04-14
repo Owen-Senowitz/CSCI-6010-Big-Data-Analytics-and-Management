@@ -6,3 +6,4 @@ geopy
 matplotlib
 xgboost
 psycopg2
+folium
