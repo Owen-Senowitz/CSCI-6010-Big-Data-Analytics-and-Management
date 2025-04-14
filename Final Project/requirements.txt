@@ -5,3 +5,4 @@ joblib
 geopy
 matplotlib
 xgboost
+psycopg2

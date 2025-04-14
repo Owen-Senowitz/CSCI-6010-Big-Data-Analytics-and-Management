@@ -66,12 +66,12 @@ print("Input features normalized!")
 
 # Train models
 models = {
-    # "decision_tree": DecisionTreeRegressor(),
-    # "knn": KNeighborsRegressor(n_neighbors=5),
+    "decision_tree": DecisionTreeRegressor(),
+    "knn": KNeighborsRegressor(n_neighbors=5),
     "linear_regression": LinearRegression(),
-    # "neural_network": MLPRegressor(hidden_layer_sizes=(100, 50), max_iter=1000, random_state=42, alpha=0.01),
-    # "random_forest": RandomForestRegressor(n_estimators=100, random_state=42),
-    # "xgboost": XGBRegressor(n_estimators=100, random_state=42, learning_rate=0.1)
+    "neural_network": MLPRegressor(hidden_layer_sizes=(100, 50), max_iter=1000, random_state=42, alpha=0.01),
+    "random_forest": RandomForestRegressor(n_estimators=100, random_state=42),
+    "xgboost": XGBRegressor(n_estimators=100, random_state=42, learning_rate=0.1)
 }
 
 results = {}
