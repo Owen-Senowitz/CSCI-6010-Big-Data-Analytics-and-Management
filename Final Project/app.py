@@ -94,8 +94,6 @@ def heatmap_data():
             SELECT pickup_latitude, pickup_longitude
             FROM raw_trips
             WHERE pickup_latitude IS NOT NULL AND pickup_longitude IS NOT NULL
-              AND pickup_latitude BETWEEN 40.5 AND 41
-              AND pickup_longitude BETWEEN -74.3 AND -73.5
             ORDER BY pickup_datetime DESC
             LIMIT 100000;
         """
