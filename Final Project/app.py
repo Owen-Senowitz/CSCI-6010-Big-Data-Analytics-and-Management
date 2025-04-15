@@ -8,12 +8,12 @@ app = Flask(__name__)
 
 # Load models and scaler
 models = {
-    # "decision_tree": joblib.load("models/decision_tree.pkl"),
-    # "knn": joblib.load("models/knn.pkl"),
+    "decision_tree": joblib.load("models/decision_tree.pkl"),
+    "knn": joblib.load("models/knn.pkl"),
     "linear_regression": joblib.load("models/linear_regression.pkl"),
-    # "neural_network": joblib.load("models/neural_network.pkl"),
-    # "random_forest": joblib.load("models/random_forest.pkl"),
-    # "xgboost": joblib.load("models/xgboost.pkl")
+    "neural_network": joblib.load("models/neural_network.pkl"),
+    "random_forest": joblib.load("models/random_forest.pkl"),
+    "xgboost": joblib.load("models/xgboost.pkl")
 }
 scaler = joblib.load("models/scaler_X.pkl")
 
@@ -78,6 +78,17 @@ def results():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
     
+from math import radians, cos, sin, asin, sqrt
+
+def haversine(lat1, lon1, lat2, lon2):
+    # Radius of Earth in km
+    R = 6371.0
+    lat1, lon1, lat2, lon2 = map(radians, [lat1, lon1, lat2, lon2])
+    dlat = lat2 - lat1
+    dlon = lon2 - lon1
+    a = sin(dlat / 2)**2 + cos(lat1) * cos(lat2) * sin(dlon / 2)**2
+    return R * 2 * asin(sqrt(a))
+
 @app.route("/heatmap-data")
 def heatmap_data():
     import psycopg2
@@ -91,20 +102,37 @@ def heatmap_data():
             port="5432"
         )
         query = """
-            SELECT pickup_latitude, pickup_longitude
+            SELECT pickup_latitude, pickup_longitude,
+                   dropoff_latitude, dropoff_longitude, trip_duration
             FROM raw_trips
             WHERE pickup_latitude IS NOT NULL AND pickup_longitude IS NOT NULL
+              AND dropoff_latitude IS NOT NULL AND dropoff_longitude IS NOT NULL
+              AND trip_duration > 0
             ORDER BY pickup_datetime DESC
-            LIMIT 10000;
+            LIMIT 100000;
         """
         df = pd.read_sql(query, conn)
         conn.close()
 
-        heatmap_points = df[['pickup_latitude', 'pickup_longitude']].values.tolist()
+        # Compute trip distance
+        df["trip_distance"] = df.apply(
+            lambda row: haversine(
+                row["pickup_latitude"], row["pickup_longitude"],
+                row["dropoff_latitude"], row["dropoff_longitude"]
+            ),
+            axis=1
+        )
+
+        # Normalize distance to 0-1 (for weight)
+        df["weight"] = df["trip_distance"] / df["trip_distance"].max()
+
+        heatmap_points = df[["pickup_latitude", "pickup_longitude", "weight"]].values.tolist()
         return jsonify(heatmap_points)
+    
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True)
