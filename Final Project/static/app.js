@@ -44,7 +44,7 @@ async function loadHeatmap() {
 			const heat = L.heatLayer(data, {
 				radius: 8,
 				blur: 15,
-				maxZoom: 17
+				maxZoom: 17,
 			}).addTo(map);
 		} else {
 			console.error("Invalid heatmap data format:", data);
@@ -56,6 +56,20 @@ async function loadHeatmap() {
 
 loadHeatmap();
 
+document
+	.getElementById("clear-markers-button")
+	.addEventListener("click", () => {
+		if (departureMarker) {
+			map.removeLayer(departureMarker);
+			departureMarker = null;
+			departureLatLng = null;
+		}
+		if (arrivalMarker) {
+			map.removeLayer(arrivalMarker);
+			arrivalMarker = null;
+			arrivalLatLng = null;
+		}
+	});
 
 document
 	.getElementById("predict-button")
