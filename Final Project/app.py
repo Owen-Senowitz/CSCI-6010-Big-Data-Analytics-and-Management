@@ -95,7 +95,7 @@ def heatmap_data():
             FROM raw_trips
             WHERE pickup_latitude IS NOT NULL AND pickup_longitude IS NOT NULL
             ORDER BY pickup_datetime DESC
-            LIMIT 100000;
+            LIMIT 10000;
         """
         df = pd.read_sql(query, conn)
         conn.close()
